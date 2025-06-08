@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "A mod that adds a QR Block",
+  "authors": [
+    "pitan76"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/qrblock76/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.pitan76.qrblock76.fabric.QRBlockModFabric"
+    ]
+  },
+  "mixins": [
+    "qrblock76.mixins.json",
+    "qrblock76-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": ">=1.16",
+    "mcpitanlib": "*"
+  }
+}
