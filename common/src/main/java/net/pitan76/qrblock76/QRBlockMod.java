@@ -1,8 +1,18 @@
 package net.pitan76.qrblock76;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.pitan76.mcpitanlib.api.CommonModInitializer;
+import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
+import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
+import net.pitan76.mcpitanlib.api.registry.result.RegistryResult;
+import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
 import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
+import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder;
 import net.pitan76.mcpitanlib.api.util.CompatIdentifier;
+import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
+import net.pitan76.mcpitanlib.midohra.world.World;
 
 public class QRBlockMod extends CommonModInitializer {
     public static final String MOD_ID = "qrblock76";
@@ -11,10 +21,41 @@ public class QRBlockMod extends CommonModInitializer {
     public static QRBlockMod INSTANCE;
     public static CompatRegistryV2 registry;
 
+    public static final BlockSettingsBuilder SETTINGS = new BlockSettingsBuilder(QRBlockMod._id("qrblock"))
+            .copy(CompatIdentifier.of("minecraft", "stone"));
+
+    public static RegistryResult<Block> QR_BLOCK;
+    public static SupplierResult<BlockEntityType<QRBlockEntity>> QR_BLOCK_ENTITY_TYPE;
+
+//    public static QRBlock QR_BLOCK;
+//    public static SupplierResult<BlockEntityType<BlockEntity>> QR_BLOCK_ENTITY_TYPE;
+
     @Override
     public void init() {
         INSTANCE = this;
         registry = super.registry;
+
+//        BlockWithBlockEntityBuilder.of(SETTINGS).applyBlockEntity(QR_BLOCK_ENTITY_TYPE.getOrNull())
+//                .onRightClick((e) -> {
+//            return e.success();
+//        }).build(this);
+//
+//        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK));
+
+        QR_BLOCK = registry.registerBlock(_id("qrblock"), QRBlock::new);
+        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.getOrNull()));
+
+        ServerNetworking.registerReceiver(_id("set_qr"), (e) -> {
+            BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
+            String text = e.getBuf().readString();
+            World world = World.of(e.getPlayer().getWorld());
+
+            BlockEntity blockEntity = world.getBlockEntity(pos).get();
+            if (!(blockEntity instanceof QRBlockEntity)) return;
+
+            QRBlockEntity entity = (QRBlockEntity) blockEntity;
+            entity.setData(text);
+        });
     }
 
     // ----
