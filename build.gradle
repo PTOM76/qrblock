@@ -35,6 +35,8 @@ subprojects {
         mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
 
         modApi "net.pitan76:mcpitanlib-common+${rootProject.mcpitanlib_version}"
+
+        implementation 'com.google.zxing:core:3.5.3'
     }
 
     /*

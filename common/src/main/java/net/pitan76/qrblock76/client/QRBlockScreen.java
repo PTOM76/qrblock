@@ -14,9 +14,7 @@ import net.pitan76.qrblock76.QRBlockMod;
 
 public class QRBlockScreen extends SimpleScreen {
     private final BlockPos pos;
-    public final TextFieldWidget textField = TextFieldUtil.create(ClientUtil.getTextRenderer(),
-            ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
-            TextUtil.of(""));
+    public TextFieldWidget textField;
 
     public QRBlockScreen(Text title, BlockPos pos) {
         super(title);
@@ -30,10 +28,15 @@ public class QRBlockScreen extends SimpleScreen {
     @Override
     public void initOverride() {
         super.initOverride();
+
+        textField = TextFieldUtil.create(ClientUtil.getTextRenderer(),
+                ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
+                TextUtil.of(""));
+
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
 
-        addDrawableChild_compatibility(textField);;
+        addDrawableChild_compatibility(textField);
     }
 
     @Override
@@ -46,6 +49,7 @@ public class QRBlockScreen extends SimpleScreen {
         buf.writeBlockPos(pos.toMinecraft());
         buf.writeString(text);
 
-        ClientNetworking.send(QRBlockMod._id("set_qr"), buf);
+        ClientNetworking.send(QRBlockMod._id("qrc2s"), buf);
+        QRBlockClientMod.syncQRBEText(pos, text);
     }
 }

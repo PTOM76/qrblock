@@ -3,14 +3,18 @@ package net.pitan76.qrblock76;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.CommonModInitializer;
 import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
+import net.pitan76.mcpitanlib.api.item.v2.ItemSettingsBuilder;
+import net.pitan76.mcpitanlib.api.network.PacketByteUtil;
 import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
 import net.pitan76.mcpitanlib.api.registry.result.RegistryResult;
 import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
 import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
 import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder;
 import net.pitan76.mcpitanlib.api.util.CompatIdentifier;
+import net.pitan76.mcpitanlib.api.util.item.ItemUtil;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
 import net.pitan76.mcpitanlib.midohra.world.World;
 
@@ -45,16 +49,43 @@ public class QRBlockMod extends CommonModInitializer {
         QR_BLOCK = registry.registerBlock(_id("qrblock"), QRBlock::new);
         QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.getOrNull()));
 
-        ServerNetworking.registerReceiver(_id("set_qr"), (e) -> {
+        registry.registerItem(_id("qrblock"), () -> ItemUtil.create(QR_BLOCK.getOrNull(),
+                new ItemSettingsBuilder(QRBlockMod._id("qrblock")).build()));
+
+        ServerNetworking.registerReceiver(_id("qrc2s"), (e) -> {
             BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
             String text = e.getBuf().readString();
-            World world = World.of(e.getPlayer().getWorld());
 
-            BlockEntity blockEntity = world.getBlockEntity(pos).get();
-            if (!(blockEntity instanceof QRBlockEntity)) return;
+            e.server.execute(() -> {
+                World world = World.of(e.getPlayer().getWorld());
 
-            QRBlockEntity entity = (QRBlockEntity) blockEntity;
-            entity.setData(text);
+                //System.out.println("pos: " + pos.toMinecraft() + ", text: " + text);
+
+                BlockEntity blockEntity = world.getBlockEntity(pos).get();
+                if (!(blockEntity instanceof QRBlockEntity)) return;
+
+                QRBlockEntity entity = (QRBlockEntity) blockEntity;
+                entity.setData(text);
+            });
+        });
+
+        ServerNetworking.registerReceiver(_id("request_qrdata"), (e) -> {
+            BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
+
+            e.server.execute(() -> {
+                World world = World.of(e.getPlayer().getWorld());
+                BlockEntity blockEntity = world.getBlockEntity(pos).get();
+                if (!(blockEntity instanceof QRBlockEntity)) return;
+
+                QRBlockEntity entity = (QRBlockEntity) blockEntity;
+                String data = entity.getData();
+                if (data == null || data.isEmpty()) return;
+
+                PacketByteBuf buf = PacketByteUtil.create();
+                buf.writeBlockPos(pos.toMinecraft());
+                buf.writeString(data);
+                ServerNetworking.send(e.serverPlayer, _id("qrs2c"), buf);
+            });
         });
     }
 
