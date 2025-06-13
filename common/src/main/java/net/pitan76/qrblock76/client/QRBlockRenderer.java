@@ -11,7 +11,6 @@ import net.pitan76.mcpitanlib.api.client.render.DrawObjectMV;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.event.BlockEntityRenderEvent;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.event.CompatBlockEntityRendererConstructArgs;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.v2.CompatBlockEntityRenderer;
-import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
 import net.pitan76.qrblock76.QRBlockEntity;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
