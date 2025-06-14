@@ -22,7 +22,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
     public void render(BlockEntityRenderEvent<QRBlockEntity> e) {
         QRBlockEntity entity = e.getBlockEntity();
         if (entity == null) return;
-
+        
         renderWhiteCube(e);
 
         String data = entity.getData();
@@ -40,7 +40,10 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         Matrix4f matrix4f = e.matrices.peek().getPositionMatrix();
         Matrix3f matrix3f = e.matrices.peek().getNormalMatrix();
 
+        int light = e.getLight();
+
         e.push();
+
         try {
             RenderLayer layer = RenderLayer.getDebugQuads();
             DrawObjectMV drawObject = new DrawObjectMV(e.matrices, e.getVertexConsumer(layer));
@@ -49,17 +52,17 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
             float offset = 0.001f;
 
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    0, 1.0f + offset, 0, 0, 1, 0);
+                    0, 1.0f + offset, 0, 0, 1, 0, light);
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    0, 0.0f - offset, 0, 0, -1, 0);
+                    0, 0.0f - offset, 0, 0, -1, 0, light);
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    0, 0, 1.0f + offset, 0, 0, 1);
+                    0, 0, 1.0f + offset, 0, 0, 1, light);
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    0, 0, 0.0f - offset, 0, 0, -1);
+                    0, 0, 0.0f - offset, 0, 0, -1, light);
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    1.0f + offset, 0, 0, 1, 0, 0);
+                    1.0f + offset, 0, 0, 1, 0, 0, light);
             renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
-                    0.0f - offset, 0, 0, -1, 0, 0);
+                    0.0f - offset, 0, 0, -1, 0, 0, light);
         } finally {
             e.pop();
         }
@@ -67,7 +70,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
 
     private void renderQRFace(VertexConsumer vertexConsumer, Matrix4f matrix4f, Matrix3f matrix3f,
                               BitMatrix qrMatrix, float blockMin, float scale,
-                              float offsetX, float offsetY, float offsetZ, float normalX, float normalY, float normalZ) {
+                              float offsetX, float offsetY, float offsetZ, float normalX, float normalY, float normalZ, int light) {
 
         float absNormalX = Math.abs(normalX);
         float absNormalY = Math.abs(normalY);
@@ -103,76 +106,76 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
 
                 renderQuad(vertexConsumer, matrix4f, matrix3f,
                         x1, y1, z1, x2, y2, z2,
-                        normalX, normalY, normalZ, 0, 0, 0);
+                        normalX, normalY, normalZ, 0, 0, 0, light);
             }
         }
     }
 
     private void renderQuad(VertexConsumer vertexConsumer, Matrix4f matrix4f, Matrix3f matrix3f,
                             float x1, float y1, float z1, float x2, float y2, float z2,
-                            float normalX, float normalY, float normalZ, int r, int g, int b) {
+                            float normalX, float normalY, float normalZ, int r, int g, int b, int light) {
 
         if (Math.abs(normalY) > 0.5f) {
             if (normalY > 0) {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
 
         } else if (Math.abs(normalZ) > 0.5f) {
             if (normalZ > 0) {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
 
         } else if (Math.abs(normalX) > 0.5f) {
             if (normalX > 0) {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z2).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
-                        .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
+                        .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
         }
     }
@@ -194,7 +197,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         for (float[] face : FACE_DATA) {
             renderQuad(consumer, matrix4f, matrix3f,
                     face[0], face[1], face[2], face[3], face[4], face[5],
-                    face[6], face[7], face[8], 255, 255, 255);
+                    face[6], face[7], face[8], 255, 255, 255, e.getLight());
         }
     }
 }
