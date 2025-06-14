@@ -4,6 +4,7 @@ import com.google.zxing.common.BitMatrix;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient;
 import net.pitan76.mcpitanlib.api.client.render.DrawObjectMV;
@@ -26,8 +27,6 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
     public void render(BlockEntityRenderEvent<QRBlockEntity> e) {
         QRBlockEntity entity = e.getBlockEntity();
         if (entity == null) return;
-        
-        renderWhiteCube(e);
 
         String data = entity.getData();
         if (data == null || data.isEmpty()) {
@@ -52,7 +51,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         Matrix4f matrix4f = e.matrices.peek().getPositionMatrix();
         Matrix3f matrix3f = e.matrices.peek().getNormalMatrix();
 
-        int light = e.getLight();
+        int light = entity.callGetWorld() != null ? WorldRenderer.getLightmapCoordinates(entity.callGetWorld(), entity.callGetPos()) : e.getLight();
 
         e.push();
 
@@ -189,27 +188,6 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
                 vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
-        }
-    }
-
-    private final float[][] FACE_DATA = {
-            {0,0,0, 1,1,1, 0,1,0},   // 上面
-            {0,1,0, 1,1,1, 0,-1,0},  // 下面
-            {0,0,1, 1,1,1, 0,0,1},   // 前面
-            {0,0,0, 1,1,1, 0,0,-1},  // 後面
-            {1,0,0, 1,1,1, 1,0,0},   // 右面
-            {0,0,0, 1,1,1, -1,0,0}   // 左面
-    };
-
-    private void renderWhiteCube(BlockEntityRenderEvent<QRBlockEntity> e) {
-        VertexConsumer consumer = e.getVertexConsumer(RenderLayer.getDebugQuads());
-        Matrix4f matrix4f = e.matrices.peek().getPositionMatrix();
-        Matrix3f matrix3f = e.matrices.peek().getNormalMatrix();
-
-        for (float[] face : FACE_DATA) {
-            renderQuad(consumer, matrix4f, matrix3f,
-                    face[0], face[1], face[2], face[3], face[4], face[5],
-                    face[6], face[7], face[8], 255, 255, 255, e.getLight());
         }
     }
 }
