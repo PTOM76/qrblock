@@ -1,21 +1,25 @@
 package net.pitan76.qrblock76;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.pitan76.mcpitanlib.api.CommonModInitializer;
 import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
 import net.pitan76.mcpitanlib.api.item.v2.ItemSettingsBuilder;
 import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
-import net.pitan76.mcpitanlib.api.registry.result.RegistryResult;
 import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
 import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
+import net.pitan76.mcpitanlib.api.sound.CompatBlockSoundGroup;
 import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder;
 import net.pitan76.mcpitanlib.api.util.CompatIdentifier;
-import net.pitan76.mcpitanlib.api.util.item.ItemUtil;
+import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
+import net.pitan76.mcpitanlib.core.datafixer.Pair;
+import net.pitan76.mcpitanlib.midohra.block.SupplierBlockWrapper;
+import net.pitan76.mcpitanlib.midohra.block.entity.BlockEntityWrapper;
+import net.pitan76.mcpitanlib.midohra.easybuilder.BlockWithBlockEntityBuilder;
+import net.pitan76.mcpitanlib.midohra.item.SupplierItemWrapper;
 import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
 import net.pitan76.mcpitanlib.midohra.world.World;
+import net.pitan76.qrblock76.client.QRBlockScreen;
 
 public class QRBlockMod extends CommonModInitializer {
     public static final String MOD_ID = "qrblock76";
@@ -24,44 +28,57 @@ public class QRBlockMod extends CommonModInitializer {
     public static QRBlockMod INSTANCE;
     public static CompatRegistryV2 registry;
 
-    public static final BlockSettingsBuilder SETTINGS = new BlockSettingsBuilder(QRBlockMod._id("qrblock"))
-            .copy(CompatIdentifier.of("minecraft", "stone"));
-
-    public static RegistryResult<Block> QR_BLOCK;
+    public static SupplierBlockWrapper QR_BLOCK;
+    public static SupplierItemWrapper QR_BLOCK_ITEM;
     public static SupplierResult<BlockEntityType<QRBlockEntity>> QR_BLOCK_ENTITY_TYPE;
-
-//    public static QRBlock QR_BLOCK;
-//    public static SupplierResult<BlockEntityType<BlockEntity>> QR_BLOCK_ENTITY_TYPE;
 
     @Override
     public void init() {
         INSTANCE = this;
         registry = super.registry;
 
-//        BlockWithBlockEntityBuilder.of(SETTINGS).applyBlockEntity(QR_BLOCK_ENTITY_TYPE.getOrNull())
-//                .onRightClick((e) -> {
-//            return e.success();
-//        }).build(this);
-//
-//        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK));
+        Pair<SupplierBlockWrapper, SupplierItemWrapper> pairQR_BLOCK =  BlockWithBlockEntityBuilder.of(new BlockSettingsBuilder(QRBlockMod._id("qrblock"))
+                        .strength(1.0f, 1.0f)
+                        .sounds(CompatBlockSoundGroup.STONE))
+                .applyBlockEntity(() -> QR_BLOCK_ENTITY_TYPE.getOrNull())
+                .onRightClick((e) -> {
+                    if (e.isSneaking()) return e.pass();
 
-        QR_BLOCK = registry.registerBlock(_id("qrblock"), QRBlock::new);
-        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.getOrNull()));
+                    String data = null;
+                    if (e.hasBlockEntity() && e.getBlockEntity() instanceof QRBlockEntity) {
+                        QRBlockEntity entity = (QRBlockEntity) e.getBlockEntity();
+                        data = entity.getData();
+                    }
 
-        registry.registerItem(_id("qrblock"), () -> ItemUtil.create(QR_BLOCK.getOrNull(),
-                new ItemSettingsBuilder(QRBlockMod._id("qrblock")).build()));
+                    if (e.isClient()) {
+                        ClientUtil.setScreen(new QRBlockScreen(e.getMidohraPos()));
+                        return e.success();
+                    }
+
+                    if (data != null) {
+                        CompatPacketByteBuf buf = CompatPacketByteBuf.create();
+                        buf.writeString(data);
+                        ServerNetworking.send(e.player, QRBlockMod._id("qrs2c_screen"), buf);
+                    }
+
+                    return e.success();
+        }).buildWithItem(this, new ItemSettingsBuilder(QRBlockMod._id("qrblock")).build());
+
+        QR_BLOCK = pairQR_BLOCK.getA();
+        QR_BLOCK_ITEM = pairQR_BLOCK.getB();
+        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.get()));
 
         ServerNetworking.registerReceiver(_id("qrc2s"), (e) -> {
             BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
             String text = e.getBuf().readString();
 
-            e.server.execute(() -> {
-                World world = World.of(e.getPlayer().getWorld());
+            e.execute(() -> {
+                World world = e.getMidohraWorld();
 
-                BlockEntity blockEntity = world.getBlockEntity(pos).get();
-                if (!(blockEntity instanceof QRBlockEntity)) return;
+                BlockEntityWrapper blockEntity = world.getBlockEntity(pos);
+                if (!(blockEntity.get() instanceof QRBlockEntity)) return;
 
-                QRBlockEntity entity = (QRBlockEntity) blockEntity;
+                QRBlockEntity entity = (QRBlockEntity) blockEntity.get();
                 entity.setData(text);
             });
         });
@@ -70,11 +87,11 @@ public class QRBlockMod extends CommonModInitializer {
             BlockPos pos = e.getCompatBuf().readBlockPosMidohra();
 
             e.execute(() -> {
-                World world = World.of(e.getWorld());
-                BlockEntity blockEntity = world.getBlockEntity(pos).get();
-                if (!(blockEntity instanceof QRBlockEntity)) return;
+                World world = e.getMidohraWorld();
+                BlockEntityWrapper blockEntityWrapper = world.getBlockEntity(pos);
+                if (!(blockEntityWrapper.get() instanceof QRBlockEntity)) return;
 
-                QRBlockEntity entity = (QRBlockEntity) blockEntity;
+                QRBlockEntity entity = (QRBlockEntity) blockEntityWrapper.get();
                 String data = entity.getData();
                 if (data == null || data.isEmpty()) return;
 
