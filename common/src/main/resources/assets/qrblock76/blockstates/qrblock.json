@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "qrblock76:block/qrblock"
+      "model": "qrblock76:block/qrblock_empty"
     }
   }
 }

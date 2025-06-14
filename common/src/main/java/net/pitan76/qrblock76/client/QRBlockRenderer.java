@@ -1,9 +1,6 @@
 package net.pitan76.qrblock76.client;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -12,27 +9,13 @@ import net.pitan76.mcpitanlib.api.client.render.DrawObjectMV;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.event.BlockEntityRenderEvent;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.v2.CompatBlockEntityRenderer;
 import net.pitan76.qrblock76.QRBlockEntity;
+import net.pitan76.qrblock76.QRData;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
     public QRBlockRenderer(CompatRegistryClient.BlockEntityRendererFactory.Context ctx) {
         super(ctx);
-    }
-
-    private static final Map<String, BitMatrix> qrCache = new HashMap<>();
-
-    private int getOptimalQRSize(String data) {
-        int dataLength = data.length();
-
-        if (dataLength <= 10) return 21;      // 最小サイズ
-        else if (dataLength <= 20) return 25;
-        else if (dataLength <= 35) return 29;
-        else if (dataLength <= 50) return 33;
-        else return 37;
     }
 
     @Override
@@ -40,63 +23,17 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         QRBlockEntity entity = e.getBlockEntity();
         if (entity == null) return;
 
+        e.push();
+        renderWhiteCube(e);
+        e.pop();
+
         String data = entity.getData();
-        if (data == null || data.isEmpty()) {
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    0, 0, 0, 1, 1, 1,
-                    0, 1, 0, 255, 255, 255);
+        if (data == null || data.isEmpty()) return;
 
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    0, 1, 0, 1, 1, 1,
-                    0, -1, 0, 255, 255, 255);
+        QRData qrdata = QRData.getOrCreateQRData(data);
+        if (qrdata == null) return;
 
-
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    0, 0, 1, 1, 1, 1,
-                    0, 0, 1, 255, 255, 255);
-
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    0, 0, 0, 1, 1, 1,
-                    0, 0, -1, 255, 255, 255);
-
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    1, 0, 0, 1, 1, 1,
-                    1, 0, 0, 255, 255, 255);
-
-            renderQuad(e.getVertexConsumer(RenderLayer.getDebugQuads()),
-                    e.matrices.peek().getPositionMatrix(),
-                    e.matrices.peek().getNormalMatrix(),
-                    0, 0, 0, 1, 1, 1,
-                    -1, 0, 0, 255, 255, 255);
-
-            return;
-        }
-
-        BitMatrix matrix;
-        int size = getOptimalQRSize(data);
-
-        if (!qrCache.containsKey(data)) {
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-
-            try {
-                matrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, size, size);
-                qrCache.put(data, matrix);
-            } catch (WriterException ex) {
-                return;
-            }
-        } else {
-            matrix = qrCache.get(data);
-        }
+        BitMatrix matrix = qrdata.matrix;
 
         float blockMin = 0;
         float blockMax = 1.0f;
@@ -110,103 +47,65 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
             RenderLayer layer = RenderLayer.getDebugQuads();
             DrawObjectMV drawObject = new DrawObjectMV(e.matrices, e.getVertexConsumer(layer));
             VertexConsumer vertexConsumer = drawObject.getBuffer();
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    0, 1.0f, 0,
-                    0, 1, 0);
 
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    0, 0.0f, 0,
-                    0, -1, 0);
+            float offset = 0.001f;
 
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    0, 0, 1.0f,
-                    0, 0, 1);
-
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    0, 0, 0.0f,
-                    0, 0, -1);
-
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    1.0f, 0, 0,
-                    1, 0, 0);
-
-            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale, size,
-                    0.0f, 0, 0,
-                    -1, 0, 0);
-
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    0, 1.0f + offset, 0, 0, 1, 0);
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    0, 0.0f - offset, 0, 0, -1, 0);
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    0, 0, 1.0f + offset, 0, 0, 1);
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    0, 0, 0.0f - offset, 0, 0, -1);
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    1.0f + offset, 0, 0, 1, 0, 0);
+            renderQRFace(vertexConsumer, matrix4f, matrix3f, matrix, blockMin, scale,
+                    0.0f - offset, 0, 0, -1, 0, 0);
         } finally {
             e.pop();
         }
     }
 
     private void renderQRFace(VertexConsumer vertexConsumer, Matrix4f matrix4f, Matrix3f matrix3f,
-                              BitMatrix qrMatrix, float blockMin, float scale, int size,
-                              float offsetX, float offsetY, float offsetZ,
-                              float normalX, float normalY, float normalZ) {
+                              BitMatrix qrMatrix, float blockMin, float scale,
+                              float offsetX, float offsetY, float offsetZ, float normalX, float normalY, float normalZ) {
 
-        if (Math.abs(normalY) > 0.5f) {
-            for (int x = 0; x < qrMatrix.getWidth(); x++) {
-                for (int z = 0; z < qrMatrix.getHeight(); z++) {
-                    boolean isBlack = qrMatrix.get(x, z);
+        float absNormalX = Math.abs(normalX);
+        float absNormalY = Math.abs(normalY);
+        float absNormalZ = Math.abs(normalZ);
 
-                    float minX = blockMin + x * scale + offsetX;
-                    float maxX = blockMin + (x + 1) * scale + offsetX;
-                    float minZ = blockMin + z * scale + offsetZ;
-                    float maxZ = blockMin + (z + 1) * scale + offsetZ;
+        if (absNormalX <= 0.5f && absNormalY <= 0.5f && absNormalZ <= 0.5f) return;
 
-                    float y = offsetY;
+        int width = qrMatrix.getWidth();
+        int height = qrMatrix.getHeight();
 
-                    int r, g, b;
-                    r = g = b = isBlack ? 0 : 255;
+        for (int i = 0; i < width; i++) {
+            float coord1Min = blockMin + i * scale;
+            float coord1Max = coord1Min + scale;
 
-                    renderQuad(vertexConsumer, matrix4f, matrix3f,
-                            minX, y, minZ, maxX, y, maxZ,
-                            normalX, normalY, normalZ, r, g, b);
+            for (int j = 0; j < height; j++) {
+                boolean isBlack = (absNormalX > 0.5f) ? qrMatrix.get(j, i) : qrMatrix.get(i, j);
+                if (!isBlack) continue;
+
+                float coord2Min = blockMin + j * scale;
+                float coord2Max = coord2Min + scale;
+
+                float x1, y1, z1, x2, y2, z2;
+                if (absNormalY > 0.5f) {
+                    x1 = coord1Min + offsetX; y1 = offsetY; z1 = coord2Min + offsetZ;
+                    x2 = coord1Max + offsetX; y2 = offsetY; z2 = coord2Max + offsetZ;
+                } else if (absNormalZ > 0.5f) {
+                    x1 = coord1Min + offsetX; y1 = coord2Min + offsetY; z1 = offsetZ;
+                    x2 = coord1Max + offsetX; y2 = coord2Max + offsetY; z2 = offsetZ;
+                } else {
+                    x1 = offsetX; y1 = coord1Min + offsetY; z1 = coord2Min + offsetZ;
+                    x2 = offsetX; y2 = coord1Max + offsetY; z2 = coord2Max + offsetZ;
                 }
-            }
-        }
 
-        if (Math.abs(normalZ) > 0.5f) {
-            for (int x = 0; x < qrMatrix.getWidth(); x++) {
-                for (int y = 0; y < qrMatrix.getHeight(); y++) {
-                    boolean isBlack = qrMatrix.get(x, y);
-
-                    float minX = blockMin + x * scale + offsetX;
-                    float maxX = blockMin + (x + 1) * scale + offsetX;
-                    float minY = blockMin + y * scale + offsetY;
-                    float maxY = blockMin + (y + 1) * scale + offsetY;
-
-                    float z = offsetZ;
-
-                    int r, g, b;
-                    r = g = b = isBlack ? 0 : 255;
-
-                    renderQuad(vertexConsumer, matrix4f, matrix3f,
-                            minX, minY, z, maxX, maxY, z,
-                            normalX, normalY, normalZ, r, g, b);
-                }
-            }
-        }
-
-        if (Math.abs(normalX) > 0.5f) {
-            for (int y = 0; y < qrMatrix.getHeight(); y++) {
-                for (int z = 0; z < qrMatrix.getWidth(); z++) {
-                    boolean isBlack = qrMatrix.get(z, y);
-
-                    float minY = blockMin + y * scale + offsetY;
-                    float maxY = blockMin + (y + 1) * scale + offsetY;
-                    float minZ = blockMin + z * scale + offsetZ;
-                    float maxZ = blockMin + (z + 1) * scale + offsetZ;
-
-                    float x = offsetX;
-
-                    int r, g, b;
-                    r = g = b = isBlack ? 0 : 255;
-
-                    renderQuad(vertexConsumer, matrix4f, matrix3f,
-                            x, minY, minZ, x, maxY, maxZ,
-                            normalX, normalY, normalZ, r, g, b);
-                }
+                renderQuad(vertexConsumer, matrix4f, matrix3f,
+                        x1, y1, z1, x2, y2, z2,
+                        normalX, normalY, normalZ, 0, 0, 0);
             }
         }
     }
@@ -216,74 +115,88 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
                             float normalX, float normalY, float normalZ, int r, int g, int b) {
 
         if (Math.abs(normalY) > 0.5f) {
-            float y = y1;
-
             if (normalY > 0) {
-                vertexConsumer.vertex(matrix4f, x1, y, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
-                vertexConsumer.vertex(matrix4f, x1, y, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
 
         } else if (Math.abs(normalZ) > 0.5f) {
-
-            float z = z1;
-
             if (normalZ > 0) {
-                vertexConsumer.vertex(matrix4f, x1, y1, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y2, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y2, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y1, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
-                vertexConsumer.vertex(matrix4f, x1, y1, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y1, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y2, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y2, z).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
 
         } else if (Math.abs(normalX) > 0.5f) {
-            float x = x1;
-
             if (normalX > 0) {
-                vertexConsumer.vertex(matrix4f, x, y1, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y2, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y2, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y1, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
-                vertexConsumer.vertex(matrix4f, x, y1, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y1, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y2, z2).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z2).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x, y2, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(15728880).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
+        }
+    }
+
+    private final float[][] FACE_DATA = {
+            {0,0,0, 1,1,1, 0,1,0},   // 上面
+            {0,1,0, 1,1,1, 0,-1,0},  // 下面
+            {0,0,1, 1,1,1, 0,0,1},   // 前面
+            {0,0,0, 1,1,1, 0,0,-1},  // 後面
+            {1,0,0, 1,1,1, 1,0,0},   // 右面
+            {0,0,0, 1,1,1, -1,0,0}   // 左面
+    };
+
+    private void renderWhiteCube(BlockEntityRenderEvent<QRBlockEntity> e) {
+        VertexConsumer consumer = e.getVertexConsumer(RenderLayer.getDebugQuads());
+        Matrix4f matrix4f = e.matrices.peek().getPositionMatrix();
+        Matrix3f matrix3f = e.matrices.peek().getNormalMatrix();
+
+        for (float[] face : FACE_DATA) {
+            renderQuad(consumer, matrix4f, matrix3f,
+                    face[0], face[1], face[2], face[3], face[4], face[5],
+                    face[6], face[7], face[8], 255, 255, 255);
         }
     }
 }

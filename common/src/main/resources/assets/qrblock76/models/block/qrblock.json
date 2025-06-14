@@ -1,7 +1,6 @@
 {
-  "parent": "block/block",
-  "textures": {
-    "particle": "minecraft:block/glass"
-  },
-  "elements": []
+  "parent": "block/cube_all",
+    "textures": {
+        "all": "qrblock76:block/qrblock"
+    }
 }
