@@ -2,11 +2,11 @@ package net.pitan76.qrblock76.client;
 
 import com.google.zxing.common.BitMatrix;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient;
+import net.pitan76.mcpitanlib.api.client.render.CompatRenderLayer;
 import net.pitan76.mcpitanlib.api.client.render.DrawObjectMV;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.event.BlockEntityRenderEvent;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.v2.CompatBlockEntityRenderer;
@@ -56,8 +56,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         e.push();
 
         try {
-            RenderLayer layer = RenderLayer.getDebugQuads();
-            DrawObjectMV drawObject = new DrawObjectMV(e.matrices, e.getVertexConsumer(layer));
+            DrawObjectMV drawObject = e.getDrawObject(CompatRenderLayer.SOLID);
             VertexConsumer vertexConsumer = drawObject.getBuffer();
 
             float offset = 0.001f;
