@@ -33,6 +33,8 @@ public class QRBlockScreen extends SimpleScreen {
                 ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
                 TextUtil.of(""));
 
+        textField.setMaxLength(512);
+
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
 
