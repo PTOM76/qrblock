@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "examplemod:example_block"
+          "name": "qrblock76:qrblock"
         }
       ],
       "conditions": [

@@ -11,11 +11,7 @@ loom {
 
 
     forge {
-        // convertAccessWideners = true
-        // extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
-        mixinConfig "qrblock76-common.mixins.json"
-        mixinConfig "qrblock76.mixins.json"
     }
 }
 

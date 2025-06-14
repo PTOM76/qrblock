@@ -35,9 +35,3 @@ type = "required"
 versionRange = "[3.0.0,)"
 ordering = "BEFORE"
 side = "BOTH"
-
-[[mixins]]
-config = "qrblock76-common.mixins.json"
-
-[[mixins]]
-config = "qrblock76.mixins.json"

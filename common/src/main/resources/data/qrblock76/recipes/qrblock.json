@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WBW",
+    "BPB",
+    "WBW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:white_concrete"
+    },
+    "B": {
+      "item": "minecraft:black_concrete"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "result": {
+    "item": "qrblock76:qrblock",
+    "count": 1
+  }
+}

@@ -19,10 +19,6 @@
       "net.pitan76.qrblock76.fabric.client.QRBlockClientModFabric"
     ]
   },
-  "mixins": [
-    "qrblock76.mixins.json",
-    "qrblock76-common.mixins.json"
-  ],
   "depends": {
     "fabricloader": "*",
     "minecraft": ">=1.16",

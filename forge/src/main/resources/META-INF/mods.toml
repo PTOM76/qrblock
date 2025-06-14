@@ -32,7 +32,7 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "mcpitanlib"
 mandatory = true
-versionRange = "[2.3.0,)"
+versionRange = "[3.0.0,)"
 ordering = "BEFORE"
 side = "BOTH"
 
