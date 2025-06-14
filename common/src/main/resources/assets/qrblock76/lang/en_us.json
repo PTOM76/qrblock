@@ -1,6 +1,3 @@
 {
-  "item.examplemod.example_item": "Example Item",
-  "block.examplemod.example_block": "Example Block",
-
-  "itemGroup.examplemod.example_items": "Example Items"
+  "block.qrblock76.qrblock": "QR Block"
 }

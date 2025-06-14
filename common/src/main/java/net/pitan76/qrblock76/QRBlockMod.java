@@ -59,8 +59,6 @@ public class QRBlockMod extends CommonModInitializer {
             e.server.execute(() -> {
                 World world = World.of(e.getPlayer().getWorld());
 
-                //System.out.println("pos: " + pos.toMinecraft() + ", text: " + text);
-
                 BlockEntity blockEntity = world.getBlockEntity(pos).get();
                 if (!(blockEntity instanceof QRBlockEntity)) return;
 
