@@ -1,5 +1,7 @@
 package net.pitan76.qrblock76;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntityType;
 import net.pitan76.mcpitanlib.api.event.block.TileCreateEvent;
 import net.pitan76.mcpitanlib.api.event.nbt.ReadNbtArgs;
@@ -10,6 +12,9 @@ import net.pitan76.mcpitanlib.api.util.NbtUtil;
 public class QRBlockEntity extends CompatBlockEntity {
 
     public String data = "";
+
+    @Environment(EnvType.CLIENT)
+    public boolean isReceivedOnClient = false;
 
     public QRBlockEntity(BlockEntityType<?> type, TileCreateEvent e) {
         super(type, e);

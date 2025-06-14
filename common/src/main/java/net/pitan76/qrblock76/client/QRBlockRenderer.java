@@ -4,11 +4,15 @@ import com.google.zxing.common.BitMatrix;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient;
 import net.pitan76.mcpitanlib.api.client.render.DrawObjectMV;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.event.BlockEntityRenderEvent;
 import net.pitan76.mcpitanlib.api.client.render.block.entity.v2.CompatBlockEntityRenderer;
+import net.pitan76.mcpitanlib.api.network.PacketByteUtil;
+import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.qrblock76.QRBlockEntity;
+import net.pitan76.qrblock76.QRBlockMod;
 import net.pitan76.qrblock76.QRData;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -26,7 +30,15 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         renderWhiteCube(e);
 
         String data = entity.getData();
-        if (data == null || data.isEmpty()) return;
+        if (data == null || data.isEmpty()) {
+            if (!entity.isReceivedOnClient) {
+                PacketByteBuf buf = PacketByteUtil.create();
+                buf.writeBlockPos(entity.callGetPos());
+                ClientNetworking.send(QRBlockMod._id("request_qrdata"), buf);
+            }
+
+            return;
+        }
 
         QRData qrdata = QRData.getOrCreateQRData(data);
         if (qrdata == null) return;

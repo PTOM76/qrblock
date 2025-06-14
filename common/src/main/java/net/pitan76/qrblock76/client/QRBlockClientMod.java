@@ -38,9 +38,13 @@ public class QRBlockClientMod {
     public static void syncQRBEText(BlockPos pos, String text) {
         World world = World.of(ClientUtil.getWorld());
         BlockEntity blockEntity = world.getBlockEntity(pos).get();
-        if (blockEntity instanceof QRBlockEntity)
-            ((QRBlockEntity) blockEntity).setData(text);
 
+        if (blockEntity instanceof QRBlockEntity) {
+            QRBlockEntity qrBlockEntity = (QRBlockEntity) blockEntity;
+
+            qrBlockEntity.setData(text);
+            qrBlockEntity.isReceivedOnClient = true;
+        }
     }
 
     public static String useTextCache() {
