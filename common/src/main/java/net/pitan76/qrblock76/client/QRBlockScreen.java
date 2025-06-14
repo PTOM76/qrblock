@@ -1,14 +1,13 @@
 package net.pitan76.qrblock76.client;
 
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.pitan76.mcpitanlib.api.client.SimpleScreen;
-import net.pitan76.mcpitanlib.api.network.PacketByteUtil;
 import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.mcpitanlib.api.util.TextUtil;
 import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
 import net.pitan76.mcpitanlib.api.util.client.widget.TextFieldUtil;
+import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
 import net.pitan76.qrblock76.QRBlockMod;
 
@@ -33,7 +32,7 @@ public class QRBlockScreen extends SimpleScreen {
                 ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
                 TextUtil.of(""));
 
-        textField.setMaxLength(512);
+        TextFieldUtil.setMaxLength(textField, 512);
 
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
@@ -47,8 +46,8 @@ public class QRBlockScreen extends SimpleScreen {
 
         String text = TextFieldUtil.getText(textField);
 
-        PacketByteBuf buf = PacketByteUtil.create();
-        buf.writeBlockPos(pos.toMinecraft());
+        CompatPacketByteBuf buf = CompatPacketByteBuf.create();
+        buf.writeBlockPos(pos);
         buf.writeString(text);
 
         ClientNetworking.send(QRBlockMod._id("qrc2s"), buf);

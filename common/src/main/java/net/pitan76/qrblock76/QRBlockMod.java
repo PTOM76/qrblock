@@ -3,11 +3,9 @@ package net.pitan76.qrblock76;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.CommonModInitializer;
 import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
 import net.pitan76.mcpitanlib.api.item.v2.ItemSettingsBuilder;
-import net.pitan76.mcpitanlib.api.network.PacketByteUtil;
 import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
 import net.pitan76.mcpitanlib.api.registry.result.RegistryResult;
 import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
@@ -15,6 +13,7 @@ import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
 import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder;
 import net.pitan76.mcpitanlib.api.util.CompatIdentifier;
 import net.pitan76.mcpitanlib.api.util.item.ItemUtil;
+import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
 import net.pitan76.mcpitanlib.midohra.world.World;
 
@@ -68,10 +67,10 @@ public class QRBlockMod extends CommonModInitializer {
         });
 
         ServerNetworking.registerReceiver(_id("request_qrdata"), (e) -> {
-            BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
+            BlockPos pos = e.getCompatBuf().readBlockPosMidohra();
 
-            e.server.execute(() -> {
-                World world = World.of(e.getPlayer().getWorld());
+            e.execute(() -> {
+                World world = World.of(e.getWorld());
                 BlockEntity blockEntity = world.getBlockEntity(pos).get();
                 if (!(blockEntity instanceof QRBlockEntity)) return;
 
@@ -79,8 +78,8 @@ public class QRBlockMod extends CommonModInitializer {
                 String data = entity.getData();
                 if (data == null || data.isEmpty()) return;
 
-                PacketByteBuf buf = PacketByteUtil.create();
-                buf.writeBlockPos(pos.toMinecraft());
+                CompatPacketByteBuf buf = CompatPacketByteBuf.create();
+                buf.writeBlockPos(pos);
                 buf.writeString(data);
                 ServerNetworking.send(e.serverPlayer, _id("qrs2c"), buf);
             });
