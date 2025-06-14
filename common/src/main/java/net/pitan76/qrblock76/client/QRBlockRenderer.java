@@ -156,28 +156,26 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
                 vertexConsumer.vertex(matrix4f, x1, y1, z2).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
-
         } else if (Math.abs(normalZ) > 0.5f) {
             if (normalZ > 0) {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             } else {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
                 vertexConsumer.vertex(matrix4f, x2, y2, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
-                vertexConsumer.vertex(matrix4f, x1, y2, z1).color(r, g, b, 255).texture(0, 0)
+                vertexConsumer.vertex(matrix4f, x2, y1, z1).color(r, g, b, 255).texture(0, 0)
                         .light(light).normal(matrix3f, normalX, normalY, normalZ).overlay(OverlayTexture.DEFAULT_UV).next();
             }
-
         } else if (Math.abs(normalX) > 0.5f) {
             if (normalX > 0) {
                 vertexConsumer.vertex(matrix4f, x1, y1, z1).color(r, g, b, 255).texture(0, 0)
