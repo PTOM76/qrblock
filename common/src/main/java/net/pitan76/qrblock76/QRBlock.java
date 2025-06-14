@@ -31,6 +31,8 @@ public class QRBlock extends CompatBlock implements ExtendBlockEntityProvider {
 
     @Override
     public CompatActionResult onRightClick(BlockUseEvent e) {
+        if (e.isSneaking()) return super.onRightClick(e);
+
         String data = null;
         if (e.hasBlockEntity() && e.getBlockEntity() instanceof QRBlockEntity) {
             QRBlockEntity entity = (QRBlockEntity) e.getBlockEntity();
@@ -48,7 +50,7 @@ public class QRBlock extends CompatBlock implements ExtendBlockEntityProvider {
             ServerNetworking.send(e.player, QRBlockMod._id("qrs2c_screen"), buf);
         }
 
-        return super.onRightClick(e);
+        return e.success();
     }
 
     @Override
