@@ -1,7 +1,6 @@
 package net.pitan76.qrblock76;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider;
 import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
@@ -46,8 +45,6 @@ public class QRBlock extends CompatBlock implements ExtendBlockEntityProvider {
         if (data != null) {
             PacketByteBuf buf = PacketByteUtil.create();
             buf.writeString(data);
-
-            System.out.println("Sending QR Block data: " + data);
             ServerNetworking.send(e.player, QRBlockMod._id("qrs2c_screen"), buf);
         }
 

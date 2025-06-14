@@ -23,9 +23,7 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         QRBlockEntity entity = e.getBlockEntity();
         if (entity == null) return;
 
-        e.push();
         renderWhiteCube(e);
-        e.pop();
 
         String data = entity.getData();
         if (data == null || data.isEmpty()) return;
