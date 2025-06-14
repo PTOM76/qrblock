@@ -95,7 +95,41 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
             float coord1Max = coord1Min + scale;
 
             for (int j = 0; j < height; j++) {
-                boolean isBlack = (absNormalX > 0.5f) ? qrMatrix.get(j, i) : qrMatrix.get(i, j);
+                boolean isBlack;
+
+                int matrixX, matrixY;
+
+                if (absNormalY > 0.5f) { // XZ plane
+                    if (normalY > 0) {
+                        matrixX = i;
+                        matrixY = height - 1 - j;
+                    } else {
+                        matrixX = width - 1 - i;
+                        matrixY = j;
+                    }
+                    isBlack = qrMatrix.get(matrixX, matrixY);
+                } else if (absNormalZ > 0.5f) { // XY plane
+                    if (normalZ > 0) {
+                        matrixX = i;
+                        matrixY = height - 1 - j;
+                    } else {
+                        matrixX = width - 1 - i;
+                        matrixY = height - 1 - j;
+                    }
+                    isBlack = qrMatrix.get(matrixX, matrixY);
+                } else if (absNormalX > 0.5f) { // YZ plane
+                    if (normalX > 0) {
+                        matrixX = height - 1 - j;
+                        matrixY = width - 1 - i;
+                    } else {
+                        matrixX = j;
+                        matrixY = width - 1 - i;
+                    }
+                    isBlack = qrMatrix.get(matrixX, matrixY);
+                } else {
+                    continue;
+                }
+
                 if (!isBlack) continue;
 
                 float coord2Min = blockMin + j * scale;
