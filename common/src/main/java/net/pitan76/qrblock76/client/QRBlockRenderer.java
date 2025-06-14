@@ -29,15 +29,14 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
         if (entity == null) return;
 
         String data = entity.getData();
-        if (data == null || data.isEmpty()) {
-            if (!entity.isReceivedOnClient) {
-                PacketByteBuf buf = PacketByteUtil.create();
-                buf.writeBlockPos(entity.callGetPos());
-                ClientNetworking.send(QRBlockMod._id("request_qrdata"), buf);
-            }
 
-            return;
+        if (!entity.isReceivedOnClient) {
+            PacketByteBuf buf = PacketByteUtil.create();
+            buf.writeBlockPos(entity.callGetPos());
+            ClientNetworking.send(QRBlockMod._id("request_qrdata"), buf);
         }
+
+        if (data == null || data.isEmpty()) return;
 
         QRData qrdata = QRData.getOrCreateQRData(data);
         if (qrdata == null) return;
