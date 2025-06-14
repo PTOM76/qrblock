@@ -104,14 +104,26 @@ public class QRBlockRenderer extends CompatBlockEntityRenderer<QRBlockEntity> {
 
                 float x1, y1, z1, x2, y2, z2;
                 if (absNormalY > 0.5f) {
-                    x1 = coord1Min + offsetX; y1 = offsetY; z1 = coord2Min + offsetZ;
-                    x2 = coord1Max + offsetX; y2 = offsetY; z2 = coord2Max + offsetZ;
+                    x1 = coord1Min + offsetX;
+                    y1 = offsetY;
+                    z1 = coord2Min + offsetZ;
+                    x2 = coord1Max + offsetX;
+                    y2 = offsetY;
+                    z2 = coord2Max + offsetZ;
                 } else if (absNormalZ > 0.5f) {
-                    x1 = coord1Min + offsetX; y1 = coord2Min + offsetY; z1 = offsetZ;
-                    x2 = coord1Max + offsetX; y2 = coord2Max + offsetY; z2 = offsetZ;
+                    x1 = coord1Min + offsetX;
+                    y1 = coord2Min + offsetY;
+                    z1 = offsetZ;
+                    x2 = coord1Max + offsetX;
+                    y2 = coord2Max + offsetY;
+                    z2 = offsetZ;
                 } else {
-                    x1 = offsetX; y1 = coord1Min + offsetY; z1 = coord2Min + offsetZ;
-                    x2 = offsetX; y2 = coord1Max + offsetY; z2 = coord2Max + offsetZ;
+                    x1 = offsetX;
+                    y1 = coord1Min + offsetY;
+                    z1 = coord2Min + offsetZ;
+                    x2 = offsetX;
+                    y2 = coord1Max + offsetY;
+                    z2 = coord2Max + offsetZ;
                 }
 
                 renderQuad(vertexConsumer, matrix4f, matrix3f,
