@@ -26,6 +26,7 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    shadowCommon 'com.google.zxing:core:3.5.3'
 
     modApi "net.pitan76:mcpitanlib-fabric+${rootProject.mcpitanlib_version}"
 }
@@ -44,6 +45,8 @@ processResources {
 }
 
 shadowJar {
+    relocate "com.google.zxing", "net.pitan76.qrblock76.shadow.zxing"
+
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set "dev-shadow"
 }

@@ -29,6 +29,7 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    shadowCommon 'com.google.zxing:core:3.5.3'
 
     modApi "net.pitan76:mcpitanlib-forge+${rootProject.mcpitanlib_version}"
 }
@@ -47,6 +48,8 @@ processResources {
 }
 
 shadowJar {
+    relocate "com.google.zxing", "net.pitan76.qrblock76.shadow.zxing"
+
     exclude "fabric.mod.json"
 
     configurations = [project.configurations.shadowCommon]
