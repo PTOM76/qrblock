@@ -8,7 +8,7 @@ import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
 import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
 import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
 import net.pitan76.mcpitanlib.api.sound.CompatBlockSoundGroup;
-import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder;
+import net.pitan76.mcpitanlib.api.tile.v2.BlockEntityTypeBuilder;
 import net.pitan76.mcpitanlib.api.util.CompatIdentifier;
 import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
 import net.pitan76.mcpitanlib.core.datafixer.Pair;
@@ -67,8 +67,7 @@ public class QRBlockMod extends CommonModInitializer {
 
         QR_BLOCK = pairQR_BLOCK.getA();
         QR_BLOCK_ITEM = pairQR_BLOCK.getB();
-        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.get()));
-        // TODO: 1.16.5でも動かすにはBlockEntityTypeBuilderのblocksを() -> QR_BLOCK.get()にする必要があるのでMCPitanLibを修正する必要がある
+        QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK));
 
         ServerNetworking.registerReceiver(_id("qrc2s"), (e) -> {
             BlockPos pos = e.getCompatBuf().readBlockPosMidohra();

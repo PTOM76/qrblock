@@ -4,13 +4,14 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.pitan76.mcpitanlib.api.client.SimpleScreen;
+import net.pitan76.mcpitanlib.api.client.gui.screen.ScreenTexts;
 import net.pitan76.mcpitanlib.api.client.option.KeyCodes;
 import net.pitan76.mcpitanlib.api.client.render.handledscreen.KeyEventArgs;
 import net.pitan76.mcpitanlib.api.client.render.screen.RenderBackgroundTextureArgs;
 import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.mcpitanlib.api.util.TextUtil;
 import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
-import net.pitan76.mcpitanlib.api.util.client.ScreenUtil;
+import net.pitan76.mcpitanlib.api.util.client.v2.ScreenUtil;
 import net.pitan76.mcpitanlib.api.util.client.widget.TextFieldUtil;
 import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
@@ -39,31 +40,31 @@ public class QRBlockScreen extends SimpleScreen {
     public void initOverride() {
         super.initOverride();
 
+        int width = ScreenUtil.getWidth(this);
+        int height = ScreenUtil.getHeight(this);
+
         textField = addDrawableChild_compatibility(TextFieldUtil.create(ClientUtil.getTextRenderer(),
-                ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
+                width / 2 - 100, height / 2 - 10, 200, 20,
                 TextUtil.of("")));
 
         TextFieldUtil.setMaxLength(textField, 512);
 
         cancelButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
-                ClientUtil.getScreen().width / 2 - 95, ClientUtil.getScreen().height / 2 + 15,
-                90, 20, TextUtil.translatable("gui.cancel"),
+                width / 2 - 95, height / 2 + 15, 90, 20, ScreenTexts.CANCEL,
                 (button) -> {
                     shouldSaving = false;
                     closeOverride();
                 }));
 
         doneButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
-                ClientUtil.getScreen().width / 2 + 5, ClientUtil.getScreen().height / 2 + 15,
-                90, 20, TextUtil.translatable("gui.done"),
-                (button) -> closeOverride()));
+                width / 2 + 5, height / 2 + 15, 90, 20, ScreenTexts.DONE, (button) -> closeOverride()));
 
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
 
         TextFieldUtil.setFocused(textField, true);
         TextFieldUtil.setFocusUnlocked(textField, true);
-        //TODO: setFocused(textField);
+        ScreenUtil.setFocus(this, textField);
     }
 
     @Override
