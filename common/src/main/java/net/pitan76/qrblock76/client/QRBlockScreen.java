@@ -3,6 +3,7 @@ package net.pitan76.qrblock76.client;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.pitan76.mcpitanlib.api.client.SimpleScreen;
+import net.pitan76.mcpitanlib.api.client.render.screen.RenderBackgroundTextureArgs;
 import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.mcpitanlib.api.util.TextUtil;
 import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
@@ -52,5 +53,10 @@ public class QRBlockScreen extends SimpleScreen {
 
         ClientNetworking.send(QRBlockMod._id("qrc2s"), buf);
         QRBlockClientMod.syncQRBEText(pos, text);
+    }
+
+    @Override
+    public void renderBackgroundTexture(RenderBackgroundTextureArgs args) {
+
     }
 }
