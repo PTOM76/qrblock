@@ -62,7 +62,8 @@ public class QRBlockScreen extends SimpleScreen {
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
 
         TextFieldUtil.setFocused(textField, true);
-        setFocused(textField);
+        TextFieldUtil.setFocusUnlocked(textField, true);
+        //TODO: setFocused(textField);
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.pitan76.mcpitanlib.core.datafixer.Pair;
 import net.pitan76.mcpitanlib.midohra.block.SupplierBlockWrapper;
 import net.pitan76.mcpitanlib.midohra.block.entity.BlockEntityWrapper;
 import net.pitan76.mcpitanlib.midohra.easybuilder.BlockWithBlockEntityBuilder;
+import net.pitan76.mcpitanlib.midohra.item.ItemGroups;
 import net.pitan76.mcpitanlib.midohra.item.SupplierItemWrapper;
 import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
@@ -37,7 +38,7 @@ public class QRBlockMod extends CommonModInitializer {
         INSTANCE = this;
         registry = super.registry;
 
-        Pair<SupplierBlockWrapper, SupplierItemWrapper> pairQR_BLOCK =  BlockWithBlockEntityBuilder.of(new BlockSettingsBuilder(QRBlockMod._id("qrblock"))
+        Pair<SupplierBlockWrapper, SupplierItemWrapper> pairQR_BLOCK = BlockWithBlockEntityBuilder.of(new BlockSettingsBuilder(QRBlockMod._id("qrblock"))
                         .strength(1.0f, 1.0f)
                         .sounds(CompatBlockSoundGroup.STONE))
                 .applyBlockEntity(() -> QR_BLOCK_ENTITY_TYPE.getOrNull())
@@ -62,15 +63,16 @@ public class QRBlockMod extends CommonModInitializer {
                     }
 
                     return e.success();
-        }).buildWithItem(this, new ItemSettingsBuilder(QRBlockMod._id("qrblock")).build());
+        }).buildWithItem(this, new ItemSettingsBuilder(QRBlockMod._id("qrblock")).addGroup(ItemGroups.FUNCTIONAL).build());
 
         QR_BLOCK = pairQR_BLOCK.getA();
         QR_BLOCK_ITEM = pairQR_BLOCK.getB();
         QR_BLOCK_ENTITY_TYPE = registry.registerBlockEntityType(_id("qrblock"), BlockEntityTypeBuilder.create(QRBlockEntity::new, QR_BLOCK.get()));
+        // TODO: 1.16.5でも動かすにはBlockEntityTypeBuilderのblocksを() -> QR_BLOCK.get()にする必要があるのでMCPitanLibを修正する必要がある
 
         ServerNetworking.registerReceiver(_id("qrc2s"), (e) -> {
-            BlockPos pos = BlockPos.of(e.getBuf().readBlockPos());
-            String text = e.getBuf().readString();
+            BlockPos pos = e.getCompatBuf().readBlockPosMidohra();
+            String text = e.getCompatBuf().readString();
 
             e.execute(() -> {
                 World world = e.getMidohraWorld();
