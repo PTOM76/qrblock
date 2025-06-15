@@ -1,10 +1,11 @@
 package net.pitan76.qrblock76.client;
 
-import net.minecraft.client.gui.screen.ingame.AbstractCommandBlockScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.pitan76.mcpitanlib.api.client.SimpleScreen;
+import net.pitan76.mcpitanlib.api.client.option.KeyCodes;
+import net.pitan76.mcpitanlib.api.client.render.handledscreen.KeyEventArgs;
 import net.pitan76.mcpitanlib.api.client.render.screen.RenderBackgroundTextureArgs;
 import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.mcpitanlib.api.util.TextUtil;
@@ -38,30 +39,40 @@ public class QRBlockScreen extends SimpleScreen {
     public void initOverride() {
         super.initOverride();
 
-        textField = TextFieldUtil.create(ClientUtil.getTextRenderer(),
+        textField = addDrawableChild_compatibility(TextFieldUtil.create(ClientUtil.getTextRenderer(),
                 ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 - 10, 200, 20,
-                TextUtil.of(""));
+                TextUtil.of("")));
 
         TextFieldUtil.setMaxLength(textField, 512);
-        TextFieldUtil.setFocused(textField, true);
-
-        doneButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
-                ClientUtil.getScreen().width / 2 + 50, ClientUtil.getScreen().height / 2 + 20,
-                150, 20, TextUtil.translatable("gui.done"),
-                (button) -> closeOverride()));
 
         cancelButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
-                ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 + 20,
-                150, 20, TextUtil.translatable("gui.cancel"),
+                ClientUtil.getScreen().width / 2 - 95, ClientUtil.getScreen().height / 2 + 15,
+                90, 20, TextUtil.translatable("gui.cancel"),
                 (button) -> {
                     shouldSaving = false;
                     closeOverride();
                 }));
 
+        doneButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
+                ClientUtil.getScreen().width / 2 + 5, ClientUtil.getScreen().height / 2 + 15,
+                90, 20, TextUtil.translatable("gui.done"),
+                (button) -> closeOverride()));
+
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
 
-        addDrawableChild_compatibility(textField);
+        TextFieldUtil.setFocused(textField, true);
+        setFocused(textField);
+    }
+
+    @Override
+    public boolean keyPressed(KeyEventArgs args) {
+        if (args.getKeyCode() == KeyCodes.KEY_ENTER) {
+            closeOverride();
+            return true;
+        }
+
+        return super.keyPressed(args);
     }
 
     @Override
