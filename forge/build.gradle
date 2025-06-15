@@ -23,6 +23,8 @@ configurations {
     developmentForge.extendsFrom common
 }
 
+project.archivesBaseName = project.archivesBaseName + "-forge"
+
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
