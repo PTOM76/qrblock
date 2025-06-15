@@ -1,5 +1,7 @@
 package net.pitan76.qrblock76.client;
 
+import net.minecraft.client.gui.screen.ingame.AbstractCommandBlockScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import net.pitan76.mcpitanlib.api.client.SimpleScreen;
@@ -7,6 +9,7 @@ import net.pitan76.mcpitanlib.api.client.render.screen.RenderBackgroundTextureAr
 import net.pitan76.mcpitanlib.api.network.v2.ClientNetworking;
 import net.pitan76.mcpitanlib.api.util.TextUtil;
 import net.pitan76.mcpitanlib.api.util.client.ClientUtil;
+import net.pitan76.mcpitanlib.api.util.client.ScreenUtil;
 import net.pitan76.mcpitanlib.api.util.client.widget.TextFieldUtil;
 import net.pitan76.mcpitanlib.midohra.network.CompatPacketByteBuf;
 import net.pitan76.mcpitanlib.midohra.util.math.BlockPos;
@@ -14,7 +17,13 @@ import net.pitan76.qrblock76.QRBlockMod;
 
 public class QRBlockScreen extends SimpleScreen {
     private final BlockPos pos;
+
     public TextFieldWidget textField;
+
+    public ButtonWidget doneButton;
+    public ButtonWidget cancelButton;
+
+    protected boolean shouldSaving = true;
 
     public QRBlockScreen(Text title, BlockPos pos) {
         super(title);
@@ -34,6 +43,20 @@ public class QRBlockScreen extends SimpleScreen {
                 TextUtil.of(""));
 
         TextFieldUtil.setMaxLength(textField, 512);
+        TextFieldUtil.setFocused(textField, true);
+
+        doneButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
+                ClientUtil.getScreen().width / 2 + 50, ClientUtil.getScreen().height / 2 + 20,
+                150, 20, TextUtil.translatable("gui.done"),
+                (button) -> closeOverride()));
+
+        cancelButton = addDrawableChild_compatibility(ScreenUtil.createButtonWidget(
+                ClientUtil.getScreen().width / 2 - 100, ClientUtil.getScreen().height / 2 + 20,
+                150, 20, TextUtil.translatable("gui.cancel"),
+                (button) -> {
+                    shouldSaving = false;
+                    closeOverride();
+                }));
 
         if (QRBlockClientMod.hasTextCache())
             TextFieldUtil.setText(textField, QRBlockClientMod.useTextCache());
@@ -44,6 +67,8 @@ public class QRBlockScreen extends SimpleScreen {
     @Override
     public void closeOverride() {
         super.closeOverride();
+
+        if (!shouldSaving) return;
 
         String text = TextFieldUtil.getText(textField);
 
