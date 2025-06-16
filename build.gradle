@@ -39,7 +39,7 @@ subprojects {
         implementation 'com.google.zxing:core:3.5.3'
     }
 
-    /*
+
     if (name in rootProject.enabled_platforms.split(",")) {
         var modLoader = name
 
@@ -47,7 +47,7 @@ subprojects {
             curseforge {
                 apiKey = System.getenv("CURSEFORGE_TOKEN")
                 project {
-                    id = ''
+                    id = '1287685'
                     changelog = rootProject.changelog + "\nMCPitanLib version: " + mcpitanlib_version.split(":")[1]
                     releaseType = 'release'
 
@@ -95,6 +95,7 @@ subprojects {
 
         }
 
+        /*
         if (System.getenv("MODRINTH_TOKEN") != null) {
             modrinth {
                 token = System.getenv("MODRINTH_TOKEN")
@@ -120,9 +121,8 @@ subprojects {
                 }
             }
         }
+         */
     }
-
-     */
 }
 
 allprojects {
