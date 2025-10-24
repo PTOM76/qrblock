@@ -4,6 +4,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.pitan76.mcpitanlib.api.CommonModInitializer;
 import net.pitan76.mcpitanlib.api.block.v2.BlockSettingsBuilder;
 import net.pitan76.mcpitanlib.api.item.v2.ItemSettingsBuilder;
+import net.pitan76.mcpitanlib.api.network.PacketByteUtil;
 import net.pitan76.mcpitanlib.api.network.v2.ServerNetworking;
 import net.pitan76.mcpitanlib.api.registry.result.SupplierResult;
 import net.pitan76.mcpitanlib.api.registry.v2.CompatRegistryV2;
@@ -58,7 +59,7 @@ public class QRBlockMod extends CommonModInitializer {
 
                     if (data != null) {
                         CompatPacketByteBuf buf = CompatPacketByteBuf.create();
-                        buf.writeString(data);
+                        PacketByteUtil.writeString(buf, data);
                         ServerNetworking.send(e.player, QRBlockMod._id("qrs2c_screen"), buf);
                     }
 
@@ -71,7 +72,7 @@ public class QRBlockMod extends CommonModInitializer {
 
         ServerNetworking.registerReceiver(_id("qrc2s"), (e) -> {
             BlockPos pos = e.getCompatBuf().readBlockPosMidohra();
-            String text = e.getCompatBuf().readString();
+            String text = PacketByteUtil.readString(e.getCompatBuf());
 
             e.execute(() -> {
                 World world = e.getMidohraWorld();
@@ -98,7 +99,7 @@ public class QRBlockMod extends CommonModInitializer {
 
                 CompatPacketByteBuf buf = CompatPacketByteBuf.create();
                 buf.writeBlockPos(pos);
-                buf.writeString(data);
+                PacketByteUtil.writeString(buf, data);
                 ServerNetworking.send(e.serverPlayer, _id("qrs2c"), buf);
             });
         });
